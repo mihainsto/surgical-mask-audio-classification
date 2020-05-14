@@ -178,6 +178,8 @@ augmentedTrainFiles = []
 
 def file_name_for_augment(path):
     return path.split('.')[0] + 'a.' + path.split('.')[1]
+def file_name_double_for_augment(path):
+    return path.split('.')[0] + 'aa.' + path.split('.')[1]
 # speeding the files
 for file in trainFiles:
     augmentedTrainFiles.append(file)
@@ -188,7 +190,7 @@ augmentedTrainFiles = []
 
 # time shifting
 for file in trainFiles:
-    augmentedTrainFiles.append((file_name_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
+    augmentedTrainFiles.append((file_name_double_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
     
 print(len(trainFiles))
 for file in augmentedTrainFiles:
