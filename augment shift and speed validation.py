@@ -134,14 +134,14 @@ validationLabels = [int(x[1]) for x in validationFileNames]
 testFileNames = testFileNames[:-1]
 testOnlyFilesNames = [f_path(x[0], "test") for x in testFileNames]
 
-trainFiles = load_file_list(trainOnlyFilesNames)
+#trainFiles = load_file_list(trainOnlyFilesNames)
 validationFiles = load_file_list(validationOnlyFilesNames)
-testFiles = load_file_list(testOnlyFilesNames)
+#testFiles = load_file_list(testOnlyFilesNames)
 
 print("Elapsed " + str(time.time() - startTime))
 # -
 
-print(len(trainFiles))
+print(len(validationFiles))
 
 # +
 startTime = time.time()
@@ -266,18 +266,15 @@ def create_folders():
         Path(name + "/crf_spectogram").mkdir(parents=True, exist_ok=True)
         create_subfolders_for(name + "/crf_spectogram")
     
-    Path("train").mkdir(parents=True, exist_ok=True)
-    Path("validation").mkdir(parents=True, exist_ok=True)
-    Path("test").mkdir(parents=True, exist_ok=True)
-
-    create_folders_for("train")
-    create_folders_for("validation")
-    create_folders_for("test")
+    
+    Path("kfold").mkdir(parents=True, exist_ok=True)
+    Path("kfold/validation").mkdir(parents=True, exist_ok=True)
+    create_folders_for("kfold/validation")#
 
 
 def process_and_save_train(file):
 
-    create_fold_spectogram(file, "train/fold_spectogram")
+    #create_fold_spectogram(file, "train/fold_spectogram")
     #create_mfcc_spectogram(file, "train/mfcc_spectogram")
     #create_crf_spectogram(file, "train/crf_spectogram")
     
@@ -293,7 +290,7 @@ def process_and_save_validation(file):
     
 def process_and_save_test(file):
 
-    create_fold_spectogram(file, "test/fold_spectogram")
+    #create_fold_spectogram(file, "test/fold_spectogram")
     #create_mfcc_spectogram(file, "test/mfcc_spectogram")
     #create_crf_spectogram(file, "test/crf_spectogram")
     
