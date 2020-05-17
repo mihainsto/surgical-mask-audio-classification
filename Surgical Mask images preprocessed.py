@@ -28,13 +28,12 @@ import librosa # Audio parsing
 import librosa.display
 import matplotlib.pyplot as plt # to make graphs
 #import sklearn # Ml
-from tqdm import tqdm_notebook as tqdm # progress bar
 import multiprocessing # going faster
 from multiprocessing import Pool
 import time
 import random
 from pathlib import Path
-
+import noisereduce as nr
 # Input data files are available in the read-only "../input/" directory
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
@@ -68,40 +67,7 @@ with open(f_path("validation.txt"), "r") as f:
     validationFileNames = split_into_files(f.read())
 with open(f_path("test.txt"), "r") as f:
     testFileNames = split_into_files(f.read())
-# -
 
-
-
-
-def display_waveform(path):
-    y, sr = librosa.load(curentFilePath, duration=10)
-    plt.figure()
-    plt.subplot(3, 1, 1)
-    librosa.display.waveplot(y, sr=sr)
-def display_colorbar(path):
-    wave , sr = librosa.load(path)
-    st = librosa.stft(wave)
-    srD = librosa.amplitude_to_db(abs(st))
-    plt.figure(figsize=(20, 5))
-    librosa.display.specshow(srD, sr=sr, x_axis='time', y_axis='hz') 
-    plt.colorbar()
-
-
-# +
-def spectral_centroids(path):
-    # spectral centroids
-    # weighter mean of the frequencies
-    wave , sr = librosa.load(path)
-    spectral_centroids = librosa.feature.spectral_centroid(wave, sr=sr)[0]
-    return np.array(spectral_centroids)
-
-def mfcc(path):
-    wave, sr = librosa.load(path)
-    mfccs = librosa.feature.mfcc(wave, sr=sr)
-    return mfccs
-
-
-# -
 
 def load_file(path):
     y, sr = librosa.load(path)
@@ -134,10 +100,25 @@ trainFiles = load_file_list(trainOnlyFilesNames)
 validationFiles = load_file_list(validationOnlyFilesNames)
 testFiles = load_file_list(testOnlyFilesNames)
 
-print("Elapsed " + str(time.time() - startTime))
+print("Read Files: Elapsed " + str(time.time() - startTime))
 # -
 
 print(len(trainFiles))
+def preprocessing(files):
+    new_files = []
+    for file in files:
+        reduced_noise = nr.reduce_noise(audio_clip=file[1], noise_clip=file[1], verbose=False)
+        trimmed, index = librosa.effects.trim(reduced_noise, top_db=20, frame_length=512, hop_length=64)
+        new_file = (file[0], trimmed, file[2])
+        new_files.append(new_file)
+    return new_files
+
+print("Preprocessing")
+startTime = time.time()
+trainFiles = preprocessing(trainFiles)
+validationFiles = preprocessing(validationFiles)
+testFiles = preprocessing(testFiles)
+print("Preprocessed elapsed: " + str(time.time() - startTime))
 
 # +
 startTime = time.time()
@@ -231,7 +212,7 @@ def create_fold_spectogram(file, saveDirectory):
     ax.set_frame_on(False)
     feature = librosa.feature.melspectrogram(y, sr = sr)
     librosa.display.specshow(librosa.power_to_db(feature, ref=np.max))
-    np.save(savePathNpy, feature)
+    #np.save(savePathNpy, feature)
     plt.savefig(savePathImage, dpi=400, bbox_inches='tight', pad_inches=0)
     plt.close()
     return True
