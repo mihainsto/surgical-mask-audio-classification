@@ -100,7 +100,7 @@ trainFiles = load_file_list(trainOnlyFilesNames)
 validationFiles = load_file_list(validationOnlyFilesNames)
 testFiles = load_file_list(testOnlyFilesNames)
 
-print("Read Files: Elapsed " + str(time.time() - startTime))
+print("Loaded Files: Elapsed " + str(time.time() - startTime))
 # -
 
 print(len(trainFiles))
@@ -121,84 +121,84 @@ testFiles = preprocessing(testFiles)
 print("Preprocessed elapsed: " + str(time.time() - startTime))
 
 # +
-startTime = time.time()
-def random_augmentation_factor():
-    random1 = random.randint(7,10) / 10
-    random2 = random.randint(10, 13) / 10
-    random3 = random.randint(1,2)
+# startTime = time.time()
+# def random_augmentation_factor():
+#     random1 = random.randint(7,10) / 10
+#     random2 = random.randint(10, 13) / 10
+#     random3 = random.randint(1,2)
     
-    if random3 == 1:
-        return random2
-    else:
-        return random1
-def manipulate_speed(data, speed_factor):
-    return librosa.effects.time_stretch(data, speed_factor)
-def pitch_augment(data, sample_rate):
-    bins_per_octave = 12
-    pitch_pm = 2
-    pitch_change =  pitch_pm * 2*(np.random.uniform())  
-    data = librosa.effects.pitch_shift(data.astype('float64'), 
-                                      sample_rate, n_steps=pitch_change, 
-                                      bins_per_octave=bins_per_octave)
-    return data
+#     if random3 == 1:
+#         return random2
+#     else:
+#         return random1
+# def manipulate_speed(data, speed_factor):
+#     return librosa.effects.time_stretch(data, speed_factor)
+# def pitch_augment(data, sample_rate):
+#     bins_per_octave = 12
+#     pitch_pm = 2
+#     pitch_change =  pitch_pm * 2*(np.random.uniform())  
+#     data = librosa.effects.pitch_shift(data.astype('float64'), 
+#                                       sample_rate, n_steps=pitch_change, 
+#                                       bins_per_octave=bins_per_octave)
+#     return data
 
-def time_shift_augment(data):
-    timeshift_fac = 0.2 *2*(np.random.uniform()-0.5)  # up to 20% of length
-    start = int(data.shape[0] * timeshift_fac)
-    if (start > 0):
-        data = np.pad(data,(start,0),mode='constant')[0:data.shape[0]]
-    else:
-        data = np.pad(data,(0,-start),mode='constant')[0:data.shape[0]]
-    return data
+# def time_shift_augment(data):
+#     timeshift_fac = 0.2 *2*(np.random.uniform()-0.5)  # up to 20% of length
+#     start = int(data.shape[0] * timeshift_fac)
+#     if (start > 0):
+#         data = np.pad(data,(start,0),mode='constant')[0:data.shape[0]]
+#     else:
+#         data = np.pad(data,(0,-start),mode='constant')[0:data.shape[0]]
+#     return data
 
-augmentedTrainFiles = []
+# augmentedTrainFiles = []
 
-def file_name_for_augment(path):
-    return path.split('.')[0] + 'a.' + path.split('.')[1]
-def file_name_double_for_augment(path):
-    return path.split('.')[0] + 'aa.' + path.split('.')[1]
+# def file_name_for_augment(path):
+#     return path.split('.')[0] + 'a.' + path.split('.')[1]
+# def file_name_double_for_augment(path):
+#     return path.split('.')[0] + 'aa.' + path.split('.')[1]
 
 
-# speeding the files
-for file in trainFiles:
-    augmentedTrainFiles.append(file)
-    augmentedTrainFiles.append((file_name_for_augment(file[0]), manipulate_speed(file[1], random_augmentation_factor()), file[2]))
+# # speeding the files
+# for file in trainFiles:
+#     augmentedTrainFiles.append(file)
+#     augmentedTrainFiles.append((file_name_for_augment(file[0]), manipulate_speed(file[1], random_augmentation_factor()), file[2]))
 
-trainFiles = augmentedTrainFiles
-augmentedTrainFiles = []
+# trainFiles = augmentedTrainFiles
+# augmentedTrainFiles = []
 
-# time shifting
-for file in trainFiles:
-    augmentedTrainFiles.append((file_name_double_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
+# # time shifting
+# for file in trainFiles:
+#     augmentedTrainFiles.append((file_name_double_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
     
-print(len(trainFiles))
-for file in augmentedTrainFiles:
-    trainFiles.append(file)
-print(len(trainFiles))
-print("Augmentation elapsed: " + str(time.time() - startTime))
-# -
+# print(len(trainFiles))
+# for file in augmentedTrainFiles:
+#     trainFiles.append(file)
+# print(len(trainFiles))
+# print("Augmentation elapsed: " + str(time.time() - startTime))
+# # -
 
-#Augmenting validation files
+# #Augmenting validation files
 
-augmentedValidationFiles = []
+# augmentedValidationFiles = []
 
-# speeding the files
-for file in validationFiles:
-    augmentedValidationFiles.append(file)
-    augmentedValidationFiles.append((file_name_for_augment(file[0]), manipulate_speed(file[1], random_augmentation_factor()), file[2]))
+# # speeding the files
+# for file in validationFiles:
+#     augmentedValidationFiles.append(file)
+#     augmentedValidationFiles.append((file_name_for_augment(file[0]), manipulate_speed(file[1], random_augmentation_factor()), file[2]))
 
-validationFiles = augmentedValidationFiles
-augmentedValidationFiles = []
+# validationFiles = augmentedValidationFiles
+# augmentedValidationFiles = []
 
-# time shifting
-for file in validationFiles:
-    augmentedValidationFiles.append((file_name_double_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
+# # time shifting
+# for file in validationFiles:
+#     augmentedValidationFiles.append((file_name_double_for_augment(file[0]), time_shift_augment(file[1]), file[2]))
     
-print(len(validationFiles))
-for file in augmentedValidationFiles:
-    validationFiles.append(file)
-print(len(validationFiles))
-print("Elapsed " + str(time.time() - startTime))
+# print(len(validationFiles))
+# for file in augmentedValidationFiles:
+#     validationFiles.append(file)
+# print(len(validationFiles))
+# print("Elapsed " + str(time.time() - startTime))
 
 # +
 def create_fold_spectogram(file, saveDirectory):
