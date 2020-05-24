@@ -1,5 +1,6 @@
 # Surgical Mask Audio Classification
 
+## Description
 In the surgical mask detection task, participants have to discriminate between utterances with and without surgical masks.  
 
 Participants have to train a model for surgical mask detection. This is a binary classification task in which an utterance (audio file) must be labeled as without mask (label 0) or with mask (label 1).  
