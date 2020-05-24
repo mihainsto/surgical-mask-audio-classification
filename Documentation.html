@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:6419/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Documentation</title>
+  <link rel="icon" href="http://localhost:6419/__/grip/static/favicon.ico">
+  <link rel="stylesheet" href="./Documentation_files/frameworks-2ad7892273edb163fa6783a69e80cc48.css">
+  <link rel="stylesheet" href="./Documentation_files/github-c20dd055fa2771ecfba624428d9ca917.css">
+  <link rel="stylesheet" href="./Documentation_files/site-c72d4cad0131ab28dbff38b082b939e1.css">
+  <link rel="stylesheet" href="./Documentation_files/octicons.css">
+  <style>
+    /* Page tweaks */
+    .preview-page {
+      margin-top: 64px;
+    }
+    /* User-content tweaks */
+    .timeline-comment-wrapper > .timeline-comment:after,
+    .timeline-comment-wrapper > .timeline-comment:before {
+      content: none;
+    }
+    /* User-content overrides */
+    .discussion-timeline.wide {
+      width: 920px;
+    }
+  </style>
+</head>
+<body data-gr-c-s-loaded="true">
+  <div class="page">
+    <div id="preview-page" class="preview-page" data-autorefresh-url="/__/grip/refresh/">
+
+    
+
+      <div role="main" class="main-content">
+        <div class="container new-discussion-timeline experiment-repo-nav">
+          <div class="repository-content">
+            <div id="readme" class="readme boxed-group clearfix announce instapaper_body md">
+              
+                
+              
+              <article class="markdown-body entry-content" itemprop="text" id="grip-content">
+                <h1>
+<a id="user-content-surgical-mask-detection-documentation" class="anchor" href="http://localhost:6419/#surgical-mask-detection-documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Surgical Mask Detection Documentation</h1>
+<h3>
+<a id="user-content-mihai-stoian" class="anchor" href="http://localhost:6419/#mihai-stoian" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mihai Stoian</h3>
+<h2>
+<a id="user-content-feature-extraction" class="anchor" href="http://localhost:6419/#feature-extraction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature Extraction</h2>
+<p>The first step in my research was to find out what features are useful for this task.<br>
+To extarct the features I used a Python3 module called <a href="https://librosa.github.io/librosa/" rel="nofollow">librosa</a> frequently used for audio feature extraction.</p>
+<p>I tested the features from librosa using two models.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Validation CNN accuracy</th>
+<th>Validation FC accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MFCC</td>
+<td>0.623</td>
+<td>0.64</td>
+</tr>
+<tr>
+<td>Spectral bandwidth</td>
+<td>0.509</td>
+<td>0.527</td>
+</tr>
+<tr>
+<td>Spectral centroids</td>
+<td></td>
+<td>0.526</td>
+</tr>
+<tr>
+<td>Spectral contrast</td>
+<td>0.583</td>
+<td>0.563</td>
+</tr>
+<tr>
+<td>Tonnetz</td>
+<td>0.527</td>
+<td>0.533</td>
+</tr>
+<tr>
+<td>Melspectrogram</td>
+<td>0.517</td>
+<td>0.467</td>
+</tr>
+<tr>
+<td>Fourier Tempogram</td>
+<td></td>
+<td>0.528</td>
+</tr>
+</tbody>
+</table>
+<p>As we can see the results are not good. The models learn only from MFCC and Spectral contrast but the accuracy score is low.
+After reading this article <a href="https://towardsdatascience.com/sound-classification-using-images-68d4770df426" rel="nofollow">"Sound classification using Images, fastai"</a> and this paper <a href="https://paperswithcode.com/paper/deep-convolutional-neural-networks-and-data-1" rel="nofollow">"Deep Convolutional Neural Networks and Data Augmentation for Environmental Sound Classification"</a> I found out that they use spectogram images from melspectogram.<br>
+The melspectogram is a visual representation of the frequencies that are converted to the Mel scale.</p>
+<p>I tested the melspectogram images on a CNN and the results were impressive.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Validation CNN accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>melspectogram images</td>
+<td>0.74</td>
+</tr>
+</tbody>
+</table>
+<p>After that, I tried more CNN architectures to maximize the test score.</p>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Model</th>
+<th>Validation accuracy</th>
+<th>Test accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>melspectogram images</td>
+<td>CNN1</td>
+<td><strong>0.763</strong></td>
+<td><strong>0.663</strong></td>
+</tr>
+<tr>
+<td>melspectogram images</td>
+<td>ResNN1</td>
+<td><strong>0.701</strong></td>
+<td><strong>0.614</strong></td>
+</tr>
+<tr>
+<td>melspectogram images</td>
+<td>CNN1 - AverragPool</td>
+<td><strong>0.678</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>melspectogram images</td>
+<td>CNN2 - 3 layers cnn</td>
+<td><strong>0.716</strong></td>
+<td><strong>0.623</strong></td>
+</tr>
+<tr>
+<td>melspectogram images</td>
+<td>CNN3 - cnn1 pool size (3,3)</td>
+<td><strong>0.724</strong></td>
+<td><strong>0.613</strong></td>
+</tr>
+<tr>
+<td>melspectogram images with more data on validation - 2k validation 7k train</td>
+<td>CNN1</td>
+<td><strong>0.702</strong></td>
+<td><strong>0.581</strong></td>
+</tr>
+</tbody>
+</table>
+<p>I tried to use other spectrogram images like CRF spectrogram and MFCC spectrogram but the results were poor.</p>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Obs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>melspectrogram images</td>
+<td>good results</td>
+</tr>
+<tr>
+<td>Crf spectrogram images</td>
+<td>max 0.6 acc on validation</td>
+</tr>
+<tr>
+<td>Mfcc spectrogram images</td>
+<td>max 0.6 acc on validation</td>
+</tr>
+<tr>
+<td>Mfcc raw data</td>
+<td>max 0.6 acc on validation</td>
+</tr>
+<tr>
+<td>Crf raw data</td>
+<td>max 0.6 acc on validation</td>
+</tr>
+<tr>
+<td>RGB images on Fold/CRF/MFCC spectograms on R/G/B</td>
+<td>poor results</td>
+</tr>
+<tr>
+<td>Melspectogram images + Mfcc double input</td>
+<td>poor results</td>
+</tr>
+</tbody>
+</table>
+<h2>
+<a id="user-content-data-augmentation" class="anchor" href="http://localhost:6419/#data-augmentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data augmentation</h2>
+<p>Data augmentation is a great way to add more data to the training set and make the model generalize better and achieve better results as shown in this paper <a href="https://paperswithcode.com/paper/deep-convolutional-neural-networks-and-data-1" rel="nofollow">"Deep Convolutional Neural Networks and Data Augmentation for Environmental Sound Classification"</a>.</p>
+<p>I did a bit of research on what augmentation is proper to be used on our data. And I found out that speed change and shift change achieve good results. But pitch change and noise removal lower the model accuracy a lot.<br>
+I used the code from this Kaggle Notebook <a href="https://www.kaggle.com/huseinzol05/sound-augmentation-librosa" rel="nofollow">"Sound Augmentation Librosa"</a></p>
+<table>
+<thead>
+<tr>
+<th>Augmentation techniques</th>
+<th>Results in accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base on non-augmented data</td>
+<td><strong>0.763</strong></td>
+</tr>
+<tr>
+<td>Only random pitch change</td>
+<td>0.614</td>
+</tr>
+<tr>
+<td>Only random speed change</td>
+<td>0.74</td>
+</tr>
+<tr>
+<td>Only random shift change</td>
+<td>0.765</td>
+</tr>
+<tr>
+<td>Preprocessed and removed noise</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Combined audio in 2-sec clips and speed and shift augmentation</td>
+<td>0.66</td>
+</tr>
+</tbody>
+</table>
+<h2>
+<a id="user-content-the-best-architecture" class="anchor" href="http://localhost:6419/#the-best-architecture" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The best architecture</h2>
+<h3>
+<a id="user-content-the-model" class="anchor" href="http://localhost:6419/#the-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The model</h3>
+<p>The chosen CNN architecture for the final submission is CNN1 with cross-validation and augmented data.<br>
+The CNN1 model is composed of 3 CNN blocks, each block followed by a max-pooling operation.<br>
+The Input shape is (221, 223, 1) because we have a grayscale image.<br>
+The first CNN block is composed of three CNN layers with 32 filters.<br>
+The second CNN block is composed of three CNN layers with 64 filters.<br>
+The third CNN block is composed of three CNN layers with 128 filters.</p>
+<p>Every Conv layer is followed by a Batch Normalization layer and then by an Activation layer using Relu function.</p>
+<p>After the CNN blocks I used a Flatten layer followed by two Dense layers.<br>
+The chosen optimizer is Adam.<br>
+And because we have binary classification I used binary_crossentropy loss function and Sigmoid activation on the last layer.</p>
+<h3>
+<a id="user-content-the-data" class="anchor" href="http://localhost:6419/#the-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Data</h3>
+<p>The training data is combined with the validation data resulting in 9000 samples. Then every sample is augmented with random speed change between 0.7 and 1.3, proceeding in 18000 samples. After that every sample is augmented with a random shift proceeding in 36000 samples.</p>
+<p>During the training of the folds, I calculated the class weight for each of the fold, because the randomly split data was not evenly balanced every time.<br>
+Then the samples are split into 10 folds resulting in 10 models. After that, the predictions are averaged.</p>
+<h3>
+<a id="user-content-the-results" class="anchor" href="http://localhost:6419/#the-results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Results</h3>
+<h4>
+<a id="user-content-results-on-validation" class="anchor" href="http://localhost:6419/#results-on-validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Results on validation</h4>
+<p>Accuracy recall and confusion matrix scores on every fold.</p>
+<table>
+<thead>
+<tr>
+<th>Fold ID</th>
+<th>Accuracy</th>
+<th>Recall</th>
+<th>True Negative</th>
+<th>False Positive</th>
+<th>False Negative</th>
+<th>True Positive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>0.998</strong></td>
+<td>0.980</td>
+<td>1764</td>
+<td>9</td>
+<td>36</td>
+<td>1791</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>0.997</strong></td>
+<td>0.999</td>
+<td>1775</td>
+<td>9</td>
+<td>1</td>
+<td>1815</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>0.993</strong></td>
+<td>0.987</td>
+<td>1745</td>
+<td>3</td>
+<td>24</td>
+<td>1828</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>0.996</strong></td>
+<td>0.996</td>
+<td>1767</td>
+<td>9</td>
+<td>7</td>
+<td>1817</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>0.996</strong></td>
+<td>0.997</td>
+<td>1706</td>
+<td>7</td>
+<td>6</td>
+<td>1881</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>0.970</strong></td>
+<td>0.969</td>
+<td>1667</td>
+<td>49</td>
+<td>58</td>
+<td>1826</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>0.966</strong></td>
+<td>0.969</td>
+<td>1736</td>
+<td>67</td>
+<td>56</td>
+<td>1741</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>0.967</strong></td>
+<td>0.974</td>
+<td>1698</td>
+<td>73</td>
+<td>47</td>
+<td>1782</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>0.967</strong></td>
+<td>0.971</td>
+<td>1712</td>
+<td>66</td>
+<td>53</td>
+<td>1769</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>0.975</strong></td>
+<td>0.981</td>
+<td>1666</td>
+<td>56</td>
+<td>35</td>
+<td>1843</td>
+</tr>
+</tbody>
+</table>
+<h4>
+<a id="user-content-results-on-test" class="anchor" href="http://localhost:6419/#results-on-test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Results on test</h4>
+<p>Results on the joined models with average between all the predictions on test on Kaggle.</p>
+<table>
+<thead>
+<tr>
+<th>Accuracy Public Test</th>
+<th>Accuracy Private Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0.71555</strong></td>
+<td><strong>0.69047</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>
+<a id="user-content-models" class="anchor" href="http://localhost:6419/#models" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Models:</h2>
+<h3>
+<a id="user-content-cnn1" class="anchor" href="http://localhost:6419/#cnn1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN1</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">main_input</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">128</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">64</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'sigmoid'</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">model</span> <span class="pl-c1">=</span> <span class="pl-v">Model</span>(<span class="pl-s1">inputs</span><span class="pl-c1">=</span><span class="pl-s1">main_input</span>, <span class="pl-s1">outputs</span><span class="pl-c1">=</span><span class="pl-s1">output</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details>
+<h3>
+<a id="user-content-resnn1" class="anchor" href="http://localhost:6419/#resnn1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ResNN1</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">main_input</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+<span class="pl-s1">skip1</span> <span class="pl-c1">=</span> <span class="pl-s1">x</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">skip2</span> <span class="pl-c1">=</span> <span class="pl-en">concatenate</span>([<span class="pl-s1">skip1</span>, <span class="pl-s1">x</span>])
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">skip2</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">skip3</span> <span class="pl-c1">=</span> <span class="pl-en">concatenate</span>([<span class="pl-s1">skip2</span>, <span class="pl-s1">x</span>])
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">skip3</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">skip4</span> <span class="pl-c1">=</span> <span class="pl-en">concatenate</span>([<span class="pl-s1">skip3</span>, <span class="pl-s1">x</span>])
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">skip4</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">skip5</span> <span class="pl-c1">=</span> <span class="pl-en">concatenate</span>([<span class="pl-s1">skip4</span>, <span class="pl-s1">x</span>])
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">skip5</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">128</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">64</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'sigmoid'</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">model</span> <span class="pl-c1">=</span> <span class="pl-v">Model</span>(<span class="pl-s1">inputs</span><span class="pl-c1">=</span><span class="pl-s1">main_input</span>, <span class="pl-s1">outputs</span><span class="pl-c1">=</span><span class="pl-s1">output</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details>   
+<h3>
+<a id="user-content-cnn1---averragpool" class="anchor" href="http://localhost:6419/#cnn1---averragpool" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN1 - AverragPool</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">main_input</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">AveragePooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">AveragePooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">AveragePooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">128</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">64</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'sigmoid'</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">model</span> <span class="pl-c1">=</span> <span class="pl-v">Model</span>(<span class="pl-s1">inputs</span><span class="pl-c1">=</span><span class="pl-s1">main_input</span>, <span class="pl-s1">outputs</span><span class="pl-c1">=</span><span class="pl-s1">output</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details>   
+<h3>
+<a id="user-content-cnn2---3-layers-cnn" class="anchor" href="http://localhost:6419/#cnn2---3-layers-cnn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN2 - 3 layers cnn</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">main_input</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">2</span>,<span class="pl-c1">2</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">128</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'sigmoid'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details> 
+<h3>
+<a id="user-content-cnn3---cnn1-pool-size-33" class="anchor" href="http://localhost:6419/#cnn3---cnn1-pool-size-33" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN3 - cnn1 pool size (3,3)</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">main_input</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">32</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">64</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">128</span>, (<span class="pl-c1">3</span>, <span class="pl-c1">3</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>()(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>((<span class="pl-c1">3</span>,<span class="pl-c1">3</span>))(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">128</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">64</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'relu'</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_uniform'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">'sigmoid'</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">model</span> <span class="pl-c1">=</span> <span class="pl-v">Model</span>(<span class="pl-s1">inputs</span><span class="pl-c1">=</span><span class="pl-s1">main_input</span>, <span class="pl-s1">outputs</span><span class="pl-c1">=</span><span class="pl-s1">output</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details>
+<h3>
+<a id="user-content-cnn4" class="anchor" href="http://localhost:6419/#cnn4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CNN4</h3>
+<details open="">
+  <summary>Click to expand!</summary>
+<div class="highlight highlight-source-python"><pre><span class="pl-s1">main_input</span> <span class="pl-c1">=</span> <span class="pl-v">Input</span>(<span class="pl-s1">shape</span> <span class="pl-c1">=</span> (<span class="pl-c1">217</span>, <span class="pl-c1">223</span>, <span class="pl-c1">1</span>))
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">main_input</span>
+<span class="pl-c"># l1</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">24</span>, (<span class="pl-c1">5</span>, <span class="pl-c1">5</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_normal'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>(<span class="pl-s1">pool_size</span><span class="pl-c1">=</span>(<span class="pl-c1">4</span>, <span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-c"># l2</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">48</span>, (<span class="pl-c1">5</span>, <span class="pl-c1">5</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_normal'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">MaxPooling2D</span>(<span class="pl-s1">pool_size</span><span class="pl-c1">=</span>(<span class="pl-c1">4</span>, <span class="pl-c1">2</span>))(<span class="pl-s1">x</span>)
+
+<span class="pl-c"># l3</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Conv2D</span>(<span class="pl-c1">48</span>, (<span class="pl-c1">5</span>, <span class="pl-c1">5</span>), <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_normal'</span>, <span class="pl-s1">padding</span><span class="pl-c1">=</span><span class="pl-s">'same'</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">BatchNormalization</span>(<span class="pl-s1">axis</span><span class="pl-c1">=</span><span class="pl-c1">1</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Activation</span>(<span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Flatten</span>()(<span class="pl-s1">x</span>)
+<span class="pl-c">#x = Dropout(0.5)(x)</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">64</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_normal'</span>, <span class="pl-s1">kernel_regularizer</span><span class="pl-c1">=</span><span class="pl-en">l2</span>(<span class="pl-c1">1e-3</span>), <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">"relu"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-c">#x = Dropout(0.5)(x)</span>
+
+<span class="pl-s1">output</span> <span class="pl-c1">=</span> <span class="pl-v">Dense</span>(<span class="pl-c1">1</span>, <span class="pl-s1">kernel_initializer</span><span class="pl-c1">=</span><span class="pl-s">'he_normal'</span>, <span class="pl-s1">kernel_regularizer</span><span class="pl-c1">=</span><span class="pl-en">l2</span>(<span class="pl-c1">1e-3</span>), <span class="pl-s1">activation</span><span class="pl-c1">=</span><span class="pl-s">"sigmoid"</span>)(<span class="pl-s1">x</span>)
+<span class="pl-s1">model</span> <span class="pl-c1">=</span> <span class="pl-v">Model</span>(<span class="pl-s1">inputs</span><span class="pl-c1">=</span><span class="pl-s1">main_input</span>, <span class="pl-s1">outputs</span><span class="pl-c1">=</span><span class="pl-s1">output</span>)
+<span class="pl-s1">model</span>.<span class="pl-en">compile</span>(<span class="pl-s1">optimizer</span><span class="pl-c1">=</span><span class="pl-s">"adam"</span>, <span class="pl-s1">loss</span><span class="pl-c1">=</span><span class="pl-s">'binary_crossentropy'</span>, <span class="pl-s1">metrics</span><span class="pl-c1">=</span>[<span class="pl-s">'accuracy'</span>])</pre></div>
+</details>
+CNN4 source: <a href="https://paperswithcode.com/paper/deep-convolutional-neural-networks-and-data-1" rel="nofollow">"Deep Convolutional Neural Networks and Data Augmentation for Environmental Sound Classification"</a> paper.
+
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    
+
+  </div>
+  <div>&nbsp;</div>
+  </div><script>
+    function showCanonicalImages() {
+      var images = document.getElementsByTagName('img');
+      if (!images) {
+        return;
+      }
+      for (var index = 0; index < images.length; index++) {
+        var image = images[index];
+        if (image.getAttribute('data-canonical-src') && image.src !== image.getAttribute('data-canonical-src')) {
+          image.src = image.getAttribute('data-canonical-src');
+        }
+      }
+    }
+
+    function scrollToHash() {
+      if (location.hash && !document.querySelector(':target')) {
+        var element = document.getElementById('user-content-' + location.hash.slice(1));
+        if (element) {
+           element.scrollIntoView();
+        }
+      }
+    }
+
+    function autorefreshContent(eventSourceUrl) {
+      var initialTitle = document.title;
+      var contentElement = document.getElementById('grip-content');
+      var source = new EventSource(eventSourceUrl);
+      var isRendering = false;
+
+      source.onmessage = function(ev) {
+        var msg = JSON.parse(ev.data);
+        if (msg.updating) {
+          isRendering = true;
+          document.title = '(Rendering) ' + document.title;
+        } else {
+          isRendering = false;
+          document.title = initialTitle;
+          contentElement.innerHTML = msg.content;
+          showCanonicalImages();
+        }
+      }
+
+      source.onerror = function(e) {
+        if (e.readyState === EventSource.CLOSED && isRendering) {
+          isRendering = false;
+          document.title = initialTitle;
+        }
+      }
+    }
+
+    window.onhashchange = function() {
+      scrollToHash();
+    }
+
+    window.onload = function() {
+      scrollToHash();
+    }
+
+    showCanonicalImages();
+
+    var autorefreshUrl = document.getElementById('preview-page').getAttribute('data-autorefresh-url');
+    if (autorefreshUrl) {
+      autorefreshContent(autorefreshUrl);
+    }
+  </script>
+
+<style id="extraClass">.extraClassAspect {-webkit-transform: scaleX(1.34)!important;}.extraClassCrop {-webkit-transform: scale(1.34)!important;}</style></body></html>

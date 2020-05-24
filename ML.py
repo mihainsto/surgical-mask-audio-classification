@@ -500,3 +500,84 @@ with open(mcp_save_drive+"submisieCross.txt", "w+") as f:
 
 
 
+# Confusion Matrix
+def create_model():
+    main_input = Input(shape = (221, 223, 1))
+    x = Conv2D(32, (3, 3), kernel_initializer='he_uniform', padding='same')(main_input)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(32, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(32, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = MaxPooling2D((2,2))(x)
+
+    x = Conv2D(64, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(64, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(64, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = MaxPooling2D((3,3))(x)
+
+    x = Conv2D(128, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(128, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = Conv2D(128, (3, 3), kernel_initializer='he_uniform', padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+    x = MaxPooling2D((2,2))(x)
+    x = Flatten()(x)
+
+    x = Dense(128, activation='relu', kernel_initializer='he_uniform')(x)
+    x = Dense(64, activation='relu', kernel_initializer='he_uniform')(x)
+    output = Dense(1, activation='sigmoid')(x)
+
+    model = Model(inputs=main_input, outputs=output)
+    model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy'])
+    return model
+
+from sklearn.model_selection import KFold
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import confusion_matrix
+
+
+curentFold = 0
+kf = KFold(n_splits=10, shuffle = True, random_state = 42)
+for train_index, test_index in kf.split(X_full[1]):
+    curentFold += 1
+    print("Fold "+str(curentFold))
+    X_train_fold = ([], [])
+    X_test_fold = ([], [])
+
+    for index in train_index:
+      X_train_fold[0].append(X_full[0][index])
+      X_train_fold[1].append(X_full[1][index])
+    for index in test_index:
+      X_test_fold[0].append(X_full[0][index])
+      X_test_fold[1].append(X_full[1][index])
+
+    Y_train_fold = np.array([Y_full[x] for x in train_index])
+    Y_test_fold = np.array([Y_full[x] for x in test_index])
+    
+    train_generator = DataGenerator(X_train_fold)
+    validation_generator = DataGenerator(X_test_fold)
+
+    X_test_fold = np.asarray([img_to_array(x) for x in X_test_fold[0]])
+    model=create_model()
+    model.load_weights(drive_link+'modelfold'+str(curentFold)+'.hdf5')
+    predictions = model.predict(X_test_fold).round()
+    acc = accuracy_score(Y_test_fold, predictions)
+    tn, fp, fn, tp = confusion_matrix(Y_test_fold, predictions).ravel()
+    recall = recall_score(Y_test_fold, predictions)
+    print(" acc: " +str('%.3f'%acc)+" recall: "+str('%.3f'%recall)+" tn: "+str(tn)+" fp: "+str(fp)+ " fn: " +str(fn)+" tp: "+str(tp))
+    print("**"+str('%.3f'%acc)+"** | " + str('%.3f'%recall) + " | " +str(tn)+ " | " +str(fp)+ " | " +str(fn)+ " | " + str(tp) + " | " )
