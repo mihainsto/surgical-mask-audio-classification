@@ -13,6 +13,6 @@ Kaggle competition: https://www.kaggle.com/c/ml-fmi-23-2020
 My model accuracy is 0.69047 and I am on 6th place on the private leaderboard.
 https://www.kaggle.com/c/ml-fmi-23-2020/leaderboard
 
-Read the Approach from the wiki: <a href="https://github.com/mihainsto/surgical-mask-audio-classification/wiki/Approach
-">Approach</a>
+**Read the Approach from the wiki:** <a href="https://github.com/mihainsto/surgical-mask-audio-classification/wiki/Approach
+">**Approach**</a>
 
