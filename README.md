@@ -9,4 +9,4 @@ The training data is composed of 8000 audio files. The validation set is compose
 
 Kaggle competition: https://www.kaggle.com/c/ml-fmi-23-2020  
 
-## Approach
+
