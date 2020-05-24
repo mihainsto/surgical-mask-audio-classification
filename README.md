@@ -7,4 +7,4 @@ Participants have to train a model for surgical mask detection. This is a binary
 
 The training data is composed of 8000 audio files. The validation set is composed of 1000 audio files. The test is composed of 3000 audio files.  
 
-Kaggle competition link: https://www.kaggle.com/c/ml-fmi-23-2020  
+Kaggle competition: https://www.kaggle.com/c/ml-fmi-23-2020  
